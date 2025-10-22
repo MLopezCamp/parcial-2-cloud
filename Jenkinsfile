@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         // Cambia esto por tu usuario Docker Hub y nombre de imagen
-        DOCKERHUB_USER = 'tu_usuario_dockerhub'
-        IMAGE_NAME = 'php-heroku-demo'
+        DOCKERHUB_USER = 'mlopezcamp'
+        IMAGE_NAME = 'parcial2-punto1'
         IMAGE_TAG = 'latest'
     }
 
