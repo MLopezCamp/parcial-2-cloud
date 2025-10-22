@@ -12,7 +12,7 @@ pipeline {
 
         stage('Clonar repositorio') {
             steps {
-                git branch: 'main', url: 'https://github.com/heroku/php-getting-started.git'
+                git branch: 'main', url: 'https://github.com/MLopezCamp/parcial-2-cloud.git'
             }
         }
 
