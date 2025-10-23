@@ -2,26 +2,27 @@ pipeline {
     agent any
 
     environment {
-        // Cambia esto por tu usuario Docker Hub y nombre de imagen
-        DOCKERHUB_USER = 'mlopezcamp'
-        IMAGE_NAME = 'parcial2-punto1'
-        IMAGE_TAG = 'latest'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred')
+        DOCKERHUB_USER = "mlopezcamp"          
+        IMAGE_NAME = "parcial2-punto1"         
+        IMAGE_TAG = "latest"
     }
 
     stages {
 
         stage('Clonar repositorio') {
             steps {
-                git branch: 'main', url: 'https://github.com/MLopezCamp/parcial-2-cloud.git'
+                echo "📥 Clonando el repositorio desde GitHub..."
+                checkout scm
             }
         }
 
         stage('Construir imagen Docker') {
             steps {
+                echo "🔨 Construyendo imagen Docker..."
                 script {
-                    echo "Construyendo imagen Docker..."
                     sh """
-                    docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} .
+                        docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} .
                     """
                 }
             }
@@ -29,21 +30,21 @@ pipeline {
 
         stage('Iniciar sesión en DockerHub') {
             steps {
+                echo "🔑 Iniciando sesión en DockerHub..."
                 script {
-                    echo "Iniciando sesión en Docker Hub..."
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                        sh 'echo $PASS | docker login -u $USER --password-stdin'
-                    }
+                    sh """
+                        echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+                    """
                 }
             }
         }
 
         stage('Subir imagen a DockerHub') {
             steps {
+                echo "⬆️ Subiendo imagen a DockerHub..."
                 script {
-                    echo "Subiendo imagen al DockerHub..."
                     sh """
-                    docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                        docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
                     """
                 }
             }
@@ -52,13 +53,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Imagen subida correctamente a Docker Hub: ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+            echo "✅ Pipeline completado con éxito. Imagen subida a DockerHub."
         }
         failure {
-            echo "❌ Error durante la construcción o subida de la imagen."
-        }
-        always {
-            echo "Pipeline finalizado."
+            echo "❌ Error en la construcción o subida de la imagen."
         }
     }
 }
